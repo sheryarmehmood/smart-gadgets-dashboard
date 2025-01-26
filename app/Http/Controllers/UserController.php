@@ -18,7 +18,8 @@ class UserController extends Controller
             return DataTables::of($users)
                 ->addColumn('actions', function ($user) {
                     return '<a href="' . route('users.show', $user->id) . '" class="btn btn-primary btn-sm">View</a>
-                    <a href="' . route('users.edit', $user->id) . '" class="btn btn-warning btn-sm">Edit</a>';
+                    <a href="' . route('users.edit', $user->id) . '" class="btn btn-warning btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm delete-user" data-id="' . $user->id . '">Delete</button>';
                 })
                 ->rawColumns(['actions']) // Allow raw HTML for the actions column
                 ->make(true);
@@ -92,6 +93,15 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json(['success' => 'User deleted successfully!']);
+    }
+
 
 
 }
