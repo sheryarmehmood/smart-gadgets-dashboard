@@ -14,17 +14,13 @@ class VariationController extends Controller
         if ($request->ajax()) {
             $variations = $product->variations()->select(['id', 'color', 'size', 'price', 'created_at']);
             return DataTables::of($variations)
-                ->addColumn('action', function ($variation) use ($product) {
-                    $editUrl = route('products.variations.edit', [$product->id, $variation->id]);
-                    $deleteUrl = route('products.variations.destroy', [$product->id, $variation->id]);
+                ->addColumn('actions', function ($variation) use ($product) {
                     return '
-                        <a href="' . $editUrl . '" class="btn btn-sm btn-primary">Edit</a>
-                        <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                            ' . csrf_field() . method_field('DELETE') . '
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">Delete</button>
-                        </form>
-                    ';
+                        <a href="' . route('products.variations.show', [$product->id, $variation->id]) . '" class="btn btn-primary btn-sm">View</a>
+                        <a href="' . route('products.variations.edit', [$product->id, $variation->id]) . '" class="btn btn-warning btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm delete-variation" data-id="' . $variation->id . '" data-product-id="' . $product->id . '">Delete</button>';
                 })
+                ->rawColumns(['actions'])
                 ->make(true);
         }
 
@@ -48,6 +44,12 @@ class VariationController extends Controller
 
         return redirect()->route('products.variations.index', $product->id)
             ->with('success', 'Variation created successfully.');
+    }
+
+    public function show(Product $product, $id)
+    {
+        $variation = $product->variations()->findOrFail($id);
+        return view('variations.show', compact('product', 'variation'));
     }
 
     public function edit(Product $product, $id)
@@ -76,7 +78,6 @@ class VariationController extends Controller
         $variation = $product->variations()->findOrFail($id);
         $variation->delete();
 
-        return redirect()->route('products.variations.index', $product->id)
-            ->with('success', 'Variation deleted successfully.');
+        return response()->json(['message' => 'Variation deleted successfully.']);
     }
 }
