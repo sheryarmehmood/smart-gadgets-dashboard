@@ -18,6 +18,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Image</th>
                         <th>Price</th>
                         <th>Created At</th>
                         <th>Actions</th>
@@ -51,6 +52,7 @@
         columns: [
             { data: 'id', name: 'id' },
             { data: 'name', name: 'name' },
+            { data: 'image', name: 'image', orderable: false, searchable: false },
             { data: 'price', name: 'price' },
             { data: 'created_at', name: 'created_at' },
             { 

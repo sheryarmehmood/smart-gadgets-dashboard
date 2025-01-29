@@ -13,23 +13,28 @@ class ProductController extends Controller
     public function index(Request $request)
 {
     if ($request->ajax()) {
-        $products = Product::query();
+        $products = Product::select(['id', 'name', 'price', 'image', 'created_at']);
 
         return DataTables::of($products)
+            ->addColumn('image', function ($product) {
+                $imagePath = asset($product->image);
+                
+                return '<img src="' . $imagePath . '" alt="' . $product->name . '" width="50" height="50">';
+            })
             ->addColumn('actions', function ($product) {
                 return '
                     <a href="' . route('products.show', $product->id) . '" class="btn btn-primary btn-sm">View</a>
                     <a href="' . route('products.edit', $product->id) . '" class="btn btn-warning btn-sm">Edit</a>
                     <button class="btn btn-danger btn-sm delete-product" data-id="' . $product->id . '">Delete</button>
                     <a href="' . route('products.variations.index', $product->id) . '" class="btn btn-info btn-sm">Variations</a>';
-                    
             })
-            ->rawColumns(['actions']) // Allow raw HTML for the actions column
+            ->rawColumns(['image', 'actions']) // Allow raw HTML for image and actions column
             ->make(true);
     }
 
     return view('products.index');
 }
+
 
 
     public function create()
