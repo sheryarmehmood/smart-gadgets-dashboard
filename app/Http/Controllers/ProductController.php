@@ -48,7 +48,20 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+        $filename = str_replace(' ', '_', $request->image->getClientOriginalName());
+        $imagePath = 'images/' . $filename;
+
+        // Move the uploaded image to 'public/images', overwriting if exists
+        $request->image->move(public_path('images'), $filename);
+
+        // Assign the image path to be saved in the database
+        $validated['image'] = $imagePath;
+        }
 
         Product::create($validated);
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
@@ -68,14 +81,33 @@ class ProductController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
+    {   
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $product = Product::findOrFail($id);
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($product->image && file_exists(public_path('images/' . $product->image))) {
+                unlink(public_path('images/' . $product->image));
+            }
+
+            // Store new image
+            $imageName = 'images/' . ' ' . $request->image->getClientOriginalName();
+            $request->image->move(public_path('images'), $imageName);
+            $validated['image'] = $imageName;
+         
+        }
+
+       
+
+        // $product->update($validated);
         $product->update($validated);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
