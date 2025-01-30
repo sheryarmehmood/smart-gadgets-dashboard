@@ -79,7 +79,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '{{ route('products.index') }}/' + productId,
+                    url: `{{ url('products') }}/${productId}`,
                     type: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}'
