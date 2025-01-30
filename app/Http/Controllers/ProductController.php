@@ -119,4 +119,6 @@ class ProductController extends Controller
         $product->delete();
         
         return response()->json(['success' => 'Product deleted successfully!']);
+    }
+
 }
